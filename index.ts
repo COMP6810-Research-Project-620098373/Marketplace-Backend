@@ -21,12 +21,31 @@ import { ItemClassifications } from "./src/model/ItemClassifications.js";
 import * as fs from "fs"
 import { filterItems } from "./src/util/filter-items.js";
 import { browseItemsResponse } from "./src/model/mock-api-responses/browse-items-response.js";
+import * as fasttext from "fasttext"
 // import { logger } from "src/util/logger.js";
 
 const app = express()
 app.use(express.json({
     limit: 1000000
 }))
+
+const trainFilePath = "./assets/train.txt"
+const modelFilePath = "./assets/model.bin"
+const classifier: fasttext.Classifier = new fasttext.default.Classifier()
+await (async () => {
+    if(!fs.existsSync(modelFilePath)){
+        const fastTextConfig: Partial<fasttext.Options> = {
+            dim: 100,
+            input: trainFilePath,
+            output: modelFilePath.slice(0, modelFilePath.length - 4),
+        }
+        await classifier.train("supervised", fastTextConfig as any).catch(err => {
+            console.error(err)
+            process.exit(1)
+        })
+    }
+    await classifier.loadModel(modelFilePath)
+})()
 
 // const apiRouter = express.Router()
 
@@ -45,7 +64,7 @@ app.post("/api/item", async (req, res) => {
         }
         const myItemsRepo = new MyItemsRepository()
         await myItemsRepo.create(item)
-        res.status(200).send(itemIpfsHash)
+        res.status(200).json(itemIpfsHash)
         // EthereumService.
     }
     catch(err){
@@ -58,7 +77,7 @@ app.get("/api/item/:ipfsHash", async (req, res) => {
     const ipfsHash: string = req.params.ipfsHash
     if(EnvironmentVariables.MOCK_API_ENABLED){
         const item = fetchItemsResponse[200].filter(val => val.ipfsHash === ipfsHash)
-        res.send(item.length === 0 ? null : item[0])
+        res.json(item.length === 0 ? null : item[0])
         return
     }
     // TODO: 
@@ -67,7 +86,7 @@ app.get("/api/item/:ipfsHash", async (req, res) => {
 app.get("/api/my-items", async (req, res) => {
     try{
         if(EnvironmentVariables.MOCK_API_ENABLED){
-            res.send(fetchItemsResponse[200].filter(val => val.title === "Rifle"))
+            res.json(fetchItemsResponse[200].filter(val => val.title === "Rifle"))
             return
         }
         // TODO:
@@ -84,7 +103,7 @@ app.get("/api/browse-items", async (req, res) => {
 
         if(EnvironmentVariables.MOCK_API_ENABLED){
             const response: Array<Item> = browseItemsResponse[200]
-            res.send(await filterItems(response, userAge))
+            res.json(await filterItems(response, userAge))
             return
         }
 
@@ -119,7 +138,21 @@ app.get("/api/transaction-cost", async (req, res) => {
 app.post("/api/classify-image", async (req, res) => {
     try{
         const image: string = req.body.image
-        res.send(await mobilenetClassifications(image))
+        res.json(await mobilenetClassifications(image))
+    }
+    catch(err){
+        logger(String(err))
+        res.status(500).send("internal server error")
+    }
+})
+
+app.post("/api/classify-text", async (req, res) => {
+    try{
+        const text: string = req.body.text
+        const prediction = await classifier.predict(text, 2)
+        res.json({
+            label: prediction[0].label.slice(9)
+        })
     }
     catch(err){
         logger(String(err))
@@ -157,4 +190,3 @@ server.listen(EnvironmentVariables.PORT, () => {
     qrcode.generate(url)
     console.log(`\nlistening on ${url}`)
 })
-

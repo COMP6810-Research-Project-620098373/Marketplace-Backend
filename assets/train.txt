@@ -1,0 +1,5 @@
+__label__revolver 5 and 6 barrel classic revolver gun with wooden handle
+__label__assault-rifle sniper rifle with silencer, acog and precision scopes for steady shots 
+__label__rifle  marksman rifle with extended magazines, sks, carbine and ruger mini-14
+__label__holster gun holster, with adjustable sizeing
+__label__sewing-machine string machine / tool for mending clothes
