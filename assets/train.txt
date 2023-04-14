@@ -3,3 +3,5 @@ __label__assault-rifle sniper rifle with silencer, acog and precision scopes for
 __label__rifle  marksman rifle with extended magazines, sks, carbine and ruger mini-14
 __label__holster gun holster, with adjustable sizeing
 __label__sewing-machine string machine / tool for mending clothes
+__label__running-shoe nike / nikes air force or adidas shoes for running
+__label__chain-saw,-chainsaw Scroll SawHeavy-duty scroll saw for making precision cuts

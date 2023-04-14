@@ -7,20 +7,18 @@ import { IpfsService } from "./src/service/ipfs.service.js";
 import { logger } from "./src/util/logger.js";
 import { EthereumService } from "./src/service/ethereum.service.js";
 import { Visibility } from "./src/model/Visibility.js";
-import express from "express";
-import http from "http"
-import IP from "ip"
-import qrcode from "qrcode-terminal"
 import { EnvironmentVariables } from "./src/model/EnvironmentVariables.js";
 import { MyItemsRepository } from "./src/repository/MyItemsRepository.js";
 import { mobilenetClassifications } from "./src/util/mobilenet.js";
-import * as cors from "cors"
 import { fetchItemsResponse } from "./src/model/mock-api-responses/fetch-items-response.js";
-import { AgeRanges } from "./src/model/AgeRanges.js";
-import { ItemClassifications } from "./src/model/ItemClassifications.js";
-import * as fs from "fs"
 import { filterItems } from "./src/util/filter-items.js";
 import { browseItemsResponse } from "./src/model/mock-api-responses/browse-items-response.js";
+import { myItemsResponse } from "./src/model/mock-api-responses/my-items-response.js";
+import qrcode from "qrcode-terminal"
+import express from "express";
+import http from "http"
+import IP from "ip"
+import * as fs from "fs"
 import * as fasttext from "fasttext"
 // import { logger } from "src/util/logger.js";
 
@@ -65,7 +63,6 @@ app.post("/api/item", async (req, res) => {
         const myItemsRepo = new MyItemsRepository()
         await myItemsRepo.create(item)
         res.status(200).json(itemIpfsHash)
-        // EthereumService.
     }
     catch(err){
         logger(String(err))
@@ -86,7 +83,7 @@ app.get("/api/item/:ipfsHash", async (req, res) => {
 app.get("/api/my-items", async (req, res) => {
     try{
         if(EnvironmentVariables.MOCK_API_ENABLED){
-            res.json(fetchItemsResponse[200].filter(val => val.title === "Rifle"))
+            res.json(myItemsResponse[200])
             return
         }
         // TODO:
@@ -149,7 +146,13 @@ app.post("/api/classify-image", async (req, res) => {
 app.post("/api/classify-text", async (req, res) => {
     try{
         const text: string = req.body.text
-        const prediction = await classifier.predict(text, 2)
+        const prediction = await classifier.predict(text.toLowerCase(), 2)
+        if(prediction.length === 0){
+            res.json({
+                label: null
+            })
+            return
+        }
         res.json({
             label: prediction[0].label.slice(9)
         })

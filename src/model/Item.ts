@@ -6,7 +6,7 @@ export interface Item {
     cost: number
     ipfsHash: string | null
     visibility: Visibility
-    ethereumTransactionID: string | null
+    ethereumTransactionHash: string | null
     images: Array<string>
     contact: string
     category: ItemCategories
