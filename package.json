@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc; cpx \"./www/**\" \"./dist/www\"; cpx \"./.env\" \"dist\"; cpx \"./assets/**\" \"./dist/assets\"",
-    "start": "npm run build; cd dist; node index.js",
+    "start": "cpx \"./sslcert/**\" \"./dist/sslcert\"; npm run build; cd dist; node index.js",
     "start-dev": "npx nodemon --watch ./ --ext 'ts' --exec npm start"
   },
   "keywords": [],
@@ -19,6 +19,7 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "fasttext": "^1.0.0",
+    "https": "^1.0.0",
     "ip": "^1.1.8",
     "ipfs-http-client": "^60.0.0",
     "qrcode-terminal": "^0.12.0",

@@ -16,7 +16,7 @@ import { browseItemsResponse } from "./src/model/mock-api-responses/browse-items
 import { myItemsResponse } from "./src/model/mock-api-responses/my-items-response.js";
 import qrcode from "qrcode-terminal"
 import express from "express";
-import http from "http"
+import https from "https"
 import IP from "ip"
 import * as fs from "fs"
 import * as fasttext from "fasttext"
@@ -26,6 +26,12 @@ const app = express()
 app.use(express.json({
     limit: 1000000
 }))
+const privateKey: string  = fs.readFileSync('./sslcert/key.pem', 'utf8');
+const certificate: string = fs.readFileSync('./sslcert/cert.pem', 'utf8');
+const sslCredentials = {
+    key: privateKey, 
+    cert: certificate,
+};
 
 const trainFilePath = "./assets/train.txt"
 const modelFilePath = "./assets/model.bin"
@@ -162,16 +168,12 @@ app.post("/api/classify-text", async (req, res) => {
         res.status(500).send("internal server error")
     }
 })
-// if(!EnvironmentVariables.IS_PROD){
 
-// }
-
-// app.use("/api", apiRouter)
 app.use(express.json())
 app.use("/", express.static("./www"))
 
 
-const server = http.createServer(app)
+const server = https.createServer(sslCredentials, app)
 const io = new Server(server)
 
 io.on('connection', (socket) => {
@@ -189,7 +191,7 @@ io.on('connection', (socket) => {
 
 server.listen(EnvironmentVariables.PORT, () => {
     const ip = IP.address()
-    const url = `http://${ip}:${EnvironmentVariables.PORT}`
+    const url = `https://${ip}:${EnvironmentVariables.PORT}`
     qrcode.generate(url)
     console.log(`\nlistening on ${url}`)
 })
