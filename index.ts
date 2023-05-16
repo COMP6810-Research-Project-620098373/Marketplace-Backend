@@ -153,6 +153,7 @@ app.post("/api/classify-text", async (req, res) => {
     try{
         const text: string = req.body.text
         const prediction = await classifier.predict(text.toLowerCase(), 2)
+        console.log("Text classification prediction: ", prediction)
         if(prediction.length === 0){
             res.json({
                 label: null

@@ -17,6 +17,7 @@ export const filterItems = async (items: Array<Item>, userAge: number): Promise<
                 try{
                     const itemImage: string = item.images[0].split(",")[1] ?? item.images[0]
                     const classifications = await mobilenetClassifications(itemImage)
+                    console.log("Image classification predictions: ", classifications)
                     if(ItemClassifications[classifications[0].className] === undefined){
                         reject("item is not registered")
                     }
