@@ -11,12 +11,12 @@ const getModel = async () => {
     return model
 }
 
-export const mobilenetClassifications = async (imageUrlOrBase64: string):Promise<{
+export const mobilenetClassifications = async (imageBase64: string):Promise<{
     className: string
     probability: number
 }[]> => {
     const model = await getModel()
-    const imgBuff = Buffer.from(imageUrlOrBase64.split(",")[1] ?? imageUrlOrBase64, 'base64')
+    const imgBuff = Buffer.from(imageBase64.split(",")[1] ?? imageBase64, 'base64')
     const img = tfnode.node.decodeImage(imgBuff) as tfnode.Tensor3D
     return await model.classify(img as any)
 }

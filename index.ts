@@ -20,6 +20,7 @@ import https from "https"
 import IP from "ip"
 import * as fs from "fs"
 import * as fasttext from "fasttext"
+import { fastTextClassifications } from "./src/util/fastText.js";
 // import { logger } from "src/util/logger.js";
 
 const app = express()
@@ -152,7 +153,7 @@ app.post("/api/classify-image", async (req, res) => {
 app.post("/api/classify-text", async (req, res) => {
     try{
         const text: string = req.body.text
-        const prediction = await classifier.predict(text.toLowerCase(), 2)
+        const prediction = await fastTextClassifications(text)
         console.log("Text classification prediction: ", prediction)
         if(prediction.length === 0){
             res.json({
